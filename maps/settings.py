@@ -32,7 +32,7 @@ DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = ['*']
 
-if DEBUG:
+if not DEBUG:
     DEPLOYMENT_URL = 'https://api.needmedi.com'
 else:
     DEPLOYMENT_URL = 'https://api.dev.needmedi.com'
@@ -86,8 +86,7 @@ ROOT_URLCONF = 'maps.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
