@@ -59,7 +59,7 @@ class UserApiViewSet(viewsets.ModelViewSet):
                     print(e)
                     raise e
 
-            languages = tokens.get('languages')
+            languages = tokens.get('language')
             phone_number = tokens.get('phone_number')
             print(f"{languages = }")
             token.language.all().delete()
@@ -68,8 +68,10 @@ class UserApiViewSet(viewsets.ModelViewSet):
                 token.language.add(l.id)
 
             token.phone_number = phone_number
+            token.gender = tokens.get('gender')
+            token.age = tokens.get('age')
+            token.address = tokens.get('address')
             token.save()
-
             serializer = UserSerializer(user, data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
