@@ -1,7 +1,13 @@
+from urllib import request
 from rest_framework import serializers
 
 from internals.serializers import GetImageSerializer, GetBuildingSerializer, DoctorSerializer, GetDepartmentSerializer
-from .models import Markers, Reviews, SuspiciousMarking, Patient, Tokens, Language, Notification, BannerImage
+from .models import Markers, Reviews, SuspiciousMarking, Patient, Tokens, Language, Notification, BannerImage, bed
+
+bed_names = {}
+for i in bed:
+    bed_names[i[0]] = i[1]
+
 
 
 class GetMarkerSerializer(serializers.ModelSerializer):
@@ -78,7 +84,18 @@ class GetPatientSerializer(serializers.ModelSerializer):
             'requirement', 'public', 'mobile_number', 'request_type', 'account_holder', 'account_no', 'ifsc', 'bank_name',
             'reason', 'attachment'
         ]
+    def get_bedtype_display(self, obj):
+        if obj.bedtype in bed_names:
+            return bed_names[obj.bedtype]
+        return ""
 
+
+    def to_representation(self, data):
+        if (data.helped_by != self.context['request'].user):
+            if data.account_no:
+                data.account_no = data.account_no[-4:]
+        data = super(GetPatientSerializer, self).to_representation(data)
+        return data
 
 class DetailMarkerSerializer(GetMarkerSerializer):
     comment = GetReviewSerializer(read_only=True, required=False, many=True)
