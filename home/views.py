@@ -8,7 +8,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from rest_framework import viewsets, generics, filters, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -281,7 +281,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get", "post"], url_path='all')
     def all(self, request, *args, **kwargs):
-        self.queryset = self.queryset.all()
+        self.queryset = self.queryset.all().exclude(user=request.user)
         page = self.paginate_queryset(self.queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -306,13 +306,21 @@ class PatientViewSet(viewsets.ModelViewSet):
     def help(self, request, pk):
         user = request.user
         patient = Patient.objects.get(pk=pk)
-        if patient.helped_by:
-            serializers.ValidationError(detail='Thank you!')
-            return Response({'details': 'This patient got treatment ! '}, status=403)
+        patient.help_requests.add(user)
         patient.helped_by = user
         patient.save()
         serializer = self.get_serializer(patient, many=False)
         return Response(serializer.data, status=201)
+
+    # @action(detail=True, methods=["post"], url_path='accept', permission_classes=[IsOwnerUser, ])
+    # def accept(self, request, pk):
+    #     user = request.user
+    #     patient = Patient.objects.get(pk=pk)
+    #     patient.help_requests.add(user)
+    #     patient.helped_by = user
+    #     patient.save()
+    #     serializer = self.get_serializer(patient, many=False)
+    #     return Response(serializer.data, status=201)
 
 
 class ImageViewSet(viewsets.ModelViewSet, generics.GenericAPIView):
@@ -358,6 +366,7 @@ class NotificationApiViewSet(viewsets.ModelViewSet):
         for notification in notifications:
             notification.deleted = True
             notification.save()
+
 
 class BannerImageViewSet(viewsets.ModelViewSet):
     queryset = BannerImage.objects.all()

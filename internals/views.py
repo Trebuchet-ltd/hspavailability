@@ -46,7 +46,7 @@ class DepartmentApiViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = GetDepartmentSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'head', 'options']
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filter_backends = [django_filtersdjango_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['hospital']
 
 
