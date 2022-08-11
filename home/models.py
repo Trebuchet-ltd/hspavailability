@@ -209,9 +209,9 @@ class Patient(models.Model):
                                                                                                                  'jpg'])])
 
     help_requests = models.ManyToManyField(User, blank=True, null=True, related_name='helping_requests',
-                                           on_delete=models.SET_NULL)
+                                           )
     accepted_requests = models.ManyToManyField(User, blank=True, null=True, related_name='accepted_requests',
-                                               on_delete=models.SET_NULL)
+                                               )
 
     class Meta:
         ordering = ("-id")
