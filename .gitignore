@@ -6,5 +6,5 @@ db.sqlite3
 /static
 .env
 logs
-
+*/__pycache__
 data.json

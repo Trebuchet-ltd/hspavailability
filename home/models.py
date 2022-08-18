@@ -153,19 +153,33 @@ class SuspiciousMarking(models.Model):
     datef = models.DateField(default=datetime.date.today)
 
 
-class Patient(models.Model):
-    
-    
-    def attachment_size_validator(value):
+class HelpRequest(models.Model):
+
+    def attachment_size_validator(self, value):
         limit = 3 * 1024 * 1024
         if value.size > limit:
             raise ValidationError('File too large. Size should not exceed 3 MiB.')
 
+    request_type = models.CharField(choices=type, null=True, blank=True, max_length=10)
     Name = models.CharField(max_length=40)
     age = models.IntegerField(default=0)
     gender = models.CharField(choices=gender, max_length=2)
     address = models.TextField(max_length=2048, default='', blank=True)
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
+    user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
+    helped_by = models.ManyToManyField(User, blank=True, related_name='helping_users')
+    reason = models.TextField(max_length=1024, blank=True)
+    public = models.BooleanField(default=False)
+    attachment = models.FileField(null=True, upload_to="patient_attachment", validators=[attachment_size_validator,
+                                                                                         FileExtensionValidator(
+                                                                                             allowed_extensions=['pdf',
+                                                                                                                 'jpeg',
+                                                                                                                 'png',
+                                                                                                                 'jpg'])])
+
+
+class HelpRequestMedical(HelpRequest):
+
     symptoms = models.TextField(max_length=2048, blank=True)
     symdays = models.DateField(blank=True, null=True)
     spo2 = models.IntegerField(default=0)
@@ -187,26 +201,73 @@ class Patient(models.Model):
     srfid = models.CharField(max_length=30, blank=True, null=True)
     bunum = models.CharField(max_length=40, blank=True, null=True)
 
-    category = models.CharField(choices=category, default='U', max_length=2)#?
-    ownership = models.CharField(choices=ownership, default='U', max_length=2)#?
-
-    user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
-
-    helped_by = models.ForeignKey(User, blank=True, null=True, related_name='helping', on_delete=models.SET_NULL)
     requirement = models.CharField(max_length=20, blank=True, null=True)
-    public = models.BooleanField(default=False)
 
-    request_type = models.CharField(choices=type, null=True, blank=True, max_length=10)
+
+class HelpRequestFinancial(HelpRequest):
     account_holder = models.CharField(max_length=200, null=True, blank=True)
     account_no = models.CharField(max_length=25, null=True, blank=True)
     ifsc = models.CharField(max_length=20, null=True, blank=True)
     bank_name = models.CharField(max_length=30, null=True, blank=True)
 
 
-    reason = models.TextField(max_length=1024, blank=True)
-    attachment = models.FileField(null=True, upload_to="patient_attachment", validators=[attachment_size_validator, FileExtensionValidator(allowed_extensions=['pdf', 'jpeg', 'png', 'jpg'])])
+class HelpRequestBlood(HelpRequest):
+    blood = models.CharField(max_length=4, blank=True, null=True)
 
-    
+
+# class Patient(models.Model):
+#
+#
+#     def attachment_size_validator(value):
+#         limit = 3 * 1024 * 1024
+#         if value.size > limit:
+#             raise ValidationError('File too large. Size should not exceed 3 MiB.')
+#
+#     Name = models.CharField(max_length=40)
+#     age = models.IntegerField(default=0)
+#     gender = models.CharField(choices=gender, max_length=2)
+#     address = models.TextField(max_length=2048, default='', blank=True)
+#     mobile_number = models.CharField(max_length=15, blank=True, null=True)
+#     symptoms = models.TextField(max_length=2048, blank=True)
+#     symdays = models.DateField(blank=True, null=True)
+#     spo2 = models.IntegerField(default=0)
+#     oxy_bed = models.BooleanField(default=False)
+#     bedtype = models.IntegerField(choices=bed, default=0, blank=True, null=True)
+#
+#     blood = models.CharField(max_length=4, blank=True, null=True)
+#     ct = models.BooleanField(default=False)
+#     covidresult = models.BooleanField(default=False)
+#     ctscore = models.TextField(max_length=20, blank=True, null=True)
+#
+#     attendername = models.CharField(max_length=40, blank=True, null=True)
+#     attenderphone = models.CharField(max_length=20, blank=True, null=True)
+#     relation = models.CharField(max_length=30, blank=True, null=True)
+#
+#     hospitalpref = models.CharField(max_length=300, blank=True, null=True)
+#     hospitalprefid = models.ForeignKey(Markers, related_name='hospital_preference', blank=True, null=True,
+#                                        on_delete=models.PROTECT)
+#     srfid = models.CharField(max_length=30, blank=True, null=True)
+#     bunum = models.CharField(max_length=40, blank=True, null=True)
+#
+#     category = models.CharField(choices=category, default='U', max_length=2)#?
+#     ownership = models.CharField(choices=ownership, default='U', max_length=2)#?
+#
+#     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
+#
+#     helped_by = models.ForeignKey(User, blank=True, null=True, related_name='helping', on_delete=models.SET_NULL)
+#     requirement = models.CharField(max_length=20, blank=True, null=True)
+#     public = models.BooleanField(default=False)
+#
+#     request_type = models.CharField(choices=type, null=True, blank=True, max_length=10)
+#     account_holder = models.CharField(max_length=200, null=True, blank=True)
+#     account_no = models.CharField(max_length=25, null=True, blank=True)
+#     ifsc = models.CharField(max_length=20, null=True, blank=True)
+#     bank_name = models.CharField(max_length=30, null=True, blank=True)
+#
+#     reason = models.TextField(max_length=1024, blank=True)
+#     attachment = models.FileField(null=True, upload_to="patient_attachment", validators=[attachment_size_validator, FileExtensionValidator(allowed_extensions=['pdf', 'jpeg', 'png', 'jpg'])])
+#
+#
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -260,11 +321,6 @@ class Tokens(models.Model):
         print(self.points)
         self.save()
 
-    def update_details(self, patient: Patient):
-        self.address = patient.address
-        self.gender = patient.gender
-        self.blood = patient.blood
-        self.save()
 
     @property
     def two_layer_friends(self):
