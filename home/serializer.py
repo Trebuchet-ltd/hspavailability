@@ -84,7 +84,7 @@ class GetHelpRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = HelpRequest
         fields = [
-            'id', 'req', 'Name', 'age', 'gender', 'address', 'gender_name',
+            'id', "uid", 'req', 'Name', 'age', 'gender', 'address', 'gender_name',
             'requirement', 'public', 'mobile_number', 'request_type',
             'reason', 'attachment'
         ]
