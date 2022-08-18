@@ -93,7 +93,7 @@ class GetHelpRequestSerializer(serializers.ModelSerializer):
 class GetMedicalRequestSerializer(GetHelpRequestSerializer):
     class Meta:
         model = HelpRequestMedical
-        fields = GetHelpRequestSerializer.fields + [
+        fields = GetHelpRequestSerializer.Meta.fields + [
             "symptoms", "symdays", "spo2", "oxy_bed"
         ]
 
