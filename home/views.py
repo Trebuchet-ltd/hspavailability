@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from rest_framework import viewsets, generics, filters, permissions, status
+from rest_framework import viewsets, generics, filters, permissions, status, response
 from rest_framework.decorators import action, permission_classes
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.parsers import FileUploadParser
@@ -264,21 +264,22 @@ class PatientViewSet(viewsets.ModelViewSet):
         elif help_req.request_type == "B":
             serializer = GetBloodRequestSerializer(HelpRequestBlood.objects.get(id=pk))
         elif help_req.request_type == "FI":
-            serializer = GetFinancialRequestSerializer(HelpRequestBlood.objects.get(id=pk))
+            serializer = GetFinancialRequestSerializer(HelpRequestFinancial.objects.get(id=pk))
 
         return Response(serializer.data)
 
     def get_serializer_class(self, r_type_new=""):
+        print(f"{r_type_new = }")
         try:
             r_type = r_type_new if r_type_new else self.request.GET["type"]
             if r_type == "M":
                 return GetMedicalRequestSerializer
             elif r_type == "FI":
-                return HelpRequestFinancial
+                return GetFinancialRequestSerializer
             elif r_type == "B":
-                return HelpRequestBlood
+                return GetBloodRequestSerializer
             else:
-                return HelpRequest
+                return GetHelpRequestSerializer
         except Exception as e:
             print(e)
             return GetHelpRequestSerializer
@@ -288,8 +289,10 @@ class PatientViewSet(viewsets.ModelViewSet):
         Return the serializer instance that should be used for validating and
         deserializing input, and for serializing output.
         """
-        if "r_rype" in kwargs.items():
-            serializer_class = self.get_serializer_class(kwargs["r_type"])
+        r_type = kwargs.get("data")
+        if r_type:
+            r_type = r_type["request_type"]
+            serializer_class = self.get_serializer_class(r_type_new=r_type)
         else:
             serializer_class = self.get_serializer_class()
 
@@ -297,16 +300,23 @@ class PatientViewSet(viewsets.ModelViewSet):
         return serializer_class(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        r_type = request.data["request_type"]
-        serializer = self.get_serializer(data=request.data, r_type=r_type)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        try:
+            # r_type = request.data["request_type"]
+            # print(r_type)
+            serializer = self.get_serializer(data=request.data)
+            print(serializer)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except Exception as e:
+            print(e)
+            return Response({})
 
     def filter_queryset(self, queryset):
         user = self.request.user
-        queryset = super(PatientViewSet, self).filter_queryset(queryset)
+        queryset = super(PatientViewSet, self).filter_queryset(queryset).exclude(responses__in=self.request.user)
+        print(f"{queryset = }")
         return list(set(queryset.filter(user=user.id) | queryset.filter(public=True)))
 
     @action(detail=False, methods=["get", "post"], url_path='friends')
@@ -339,7 +349,6 @@ class PatientViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get", ], url_path='help')
     def me_helped(self, request, *args, **kwargs):
         patient = HelpRequest.objects.filter(confirmed__in=request.user)
-
         page = self.paginate_queryset(patient)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -352,8 +361,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     def help(self, request, pk):
         user = request.user
         patient = HelpRequest.objects.get(pk=pk)
-        patient.help_requests.add(user)
-        patient.helped_by = user
+        patient.response.add(user)
         patient.save()
         serializer = self.get_serializer(patient, many=False)
         return Response(serializer.data, status=201)
