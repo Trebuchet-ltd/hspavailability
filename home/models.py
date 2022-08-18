@@ -154,9 +154,9 @@ class SuspiciousMarking(models.Model):
 
 class HelpRequest(models.Model):
 
-    def attachment_size_validator(self, value):
+    def attachment_size_validator(self):
         limit = 3 * 1024 * 1024
-        if value.size > limit:
+        if self.size > limit:
             raise ValidationError('File too large. Size should not exceed 3 MiB.')
 
     request_type = models.CharField(choices=type, null=True, blank=True, max_length=10)
