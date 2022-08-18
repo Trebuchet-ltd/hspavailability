@@ -315,7 +315,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     def filter_queryset(self, queryset):
         user = self.request.user
-        queryset = super(PatientViewSet, self).filter_queryset(queryset).exclude(responses__in=self.request.user)
+        queryset = super(PatientViewSet, self).filter_queryset(queryset)
         print(f"{queryset = }")
         return list(set(queryset.filter(user=user.id) | queryset.filter(public=True)))
 
