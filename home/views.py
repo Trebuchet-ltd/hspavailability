@@ -348,7 +348,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get", ], url_path='help')
     def me_helped(self, request, *args, **kwargs):
-        patient = HelpRequest.objects.filter(confirmed__in=request.user)
+        patient = HelpRequest.objects.all()
         page = self.paginate_queryset(patient)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
