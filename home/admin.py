@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from home.models import BannerImage, Markers, Reviews, SuspiciousMarking, Patient, Tokens, Language
+from home.models import BannerImage, Markers, Reviews, SuspiciousMarking, HelpRequest, Tokens, Language
 
 
 # Register your models here.
@@ -39,9 +39,9 @@ class ReviewsAdmin(admin.ModelAdmin):
     raw_id_fields = ('marker',)
 
 
-@admin.register(Patient)
+@admin.register(HelpRequest)
 class PatientAdmin(admin.ModelAdmin):
-    raw_id_fields = ('hospitalprefid',)
+    # raw_id_fields = ('hospitalprefid',)
     list_display = ["Name", "request_type"]
     list_filter = ["request_type", ]
 

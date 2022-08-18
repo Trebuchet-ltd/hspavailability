@@ -249,10 +249,20 @@ class SusViewSet(viewsets.ModelViewSet, generics.GenericAPIView):
 
 
 class PatientViewSet(viewsets.ModelViewSet):
-    queryset = Patient.objects.filter(helped_by=None)
-    serializer_class = GetPatientSerializer
+    queryset = HelpRequest.objects.all()
+    serializer_class = GetHelpRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_serializer_class(self):
+        try:
+            r_type = self.request.GET["type"]
+            if r_type == "M":
+                return GetMedicalRequestSerializer
+            else:
+                return GetHelpRequestSerializer
+        except Exception as e:
+            return GetHelpRequestSerializer
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -292,7 +302,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get", ], url_path='help')
     def me_helped(self, request, *args, **kwargs):
-        patient = Patient.objects.filter(helped_by=request.user)
+        patient = HelpRequest.objects.filter(confirmed__in=request.user)
 
         page = self.paginate_queryset(patient)
         if page is not None:
@@ -305,7 +315,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path='help')
     def help(self, request, pk):
         user = request.user
-        patient = Patient.objects.get(pk=pk)
+        patient = HelpRequest.objects.get(pk=pk)
         patient.help_requests.add(user)
         patient.helped_by = user
         patient.save()

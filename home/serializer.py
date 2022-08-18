@@ -2,7 +2,8 @@ from urllib import request
 from rest_framework import serializers
 
 from internals.serializers import GetImageSerializer, GetBuildingSerializer, DoctorSerializer, GetDepartmentSerializer
-from .models import Markers, Reviews, SuspiciousMarking, Patient, Tokens, Language, Notification, BannerImage, bed
+from .models import Markers, Reviews, SuspiciousMarking, HelpRequest, Tokens, Language, Notification, \
+    BannerImage, bed, HelpRequestMedical
 
 bed_names = {}
 for i in bed:
@@ -68,34 +69,33 @@ class GetSusSerializer(serializers.ModelSerializer):
         ]
 
 
-class GetPatientSerializer(serializers.ModelSerializer):
+def to_representation(self, data):
+    if (data.helped_by != self.context['request'].user):
+        if data.account_no:
+            data.account_no = data.account_no[-4:]
+    data = super(GetHelpRequestSerializer, self).to_representation(data)
+    return data
+
+
+class GetHelpRequestSerializer(serializers.ModelSerializer):
     gender_name = serializers.CharField(source='get_gender_display', read_only=True)
-    bedtype_name = serializers.CharField(source='get_bedtype_display', read_only=True)
-    helped_by_name = serializers.CharField(source='get_helped_by_display', read_only=True)
     uid = serializers.ReadOnlyField(source="user.id")
 
     class Meta:
-        model = Patient
+        model = HelpRequest
         fields = [
-            'id', 'uid', 'Name', 'age', 'gender', 'address', 'symptoms', 'symdays', 'spo2', 'oxy_bed', 'covidresult',
-            'hospitalpref', 'attendername', 'attenderphone', 'relation', 'srfid', 'bunum', 'blood', 'bedtype', 'ct',
-            'ctscore', 'category', 'ownership', 'gender_name', 'bedtype_name', 'helped_by_name', 'helped_by',
-            'requirement', 'public', 'mobile_number', 'request_type', 'account_holder', 'account_no', 'ifsc',
-            'bank_name',
+            'id', 'req', 'Name', 'age', 'gender', 'address', 'gender_name',
+            'requirement', 'public', 'mobile_number', 'request_type',
             'reason', 'attachment'
         ]
 
-    def get_bedtype_display(self, obj):
-        if obj.bedtype in bed_names:
-            return bed_names[obj.bedtype]
-        return ""
 
-    def to_representation(self, data):
-        if (data.helped_by != self.context['request'].user):
-            if data.account_no:
-                data.account_no = data.account_no[-4:]
-        data = super(GetPatientSerializer, self).to_representation(data)
-        return data
+class GetMedicalRequestSerializer(GetHelpRequestSerializer):
+    class Meta:
+        model = HelpRequestMedical
+        fields = GetHelpRequestSerializer.fields + [
+            "symptoms", "symdays", "spo2", "oxy_bed"
+        ]
 
 
 class DetailMarkerSerializer(GetMarkerSerializer):

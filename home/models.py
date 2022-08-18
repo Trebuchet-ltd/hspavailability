@@ -7,7 +7,6 @@ from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 
-
 # Create your models here.
 
 rating = [
@@ -167,7 +166,9 @@ class HelpRequest(models.Model):
     address = models.TextField(max_length=2048, default='', blank=True)
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
-    helped_by = models.ManyToManyField(User, blank=True, related_name='helping_users')
+    confirmed = models.ManyToManyField(User, blank=True, related_name='confirmed')
+    response = models.ManyToManyField(User, blank=True, related_name='responded')
+    deleted_users = models.ManyToManyField(User, blank=True, related_name='deleted')
     reason = models.TextField(max_length=1024, blank=True)
     public = models.BooleanField(default=False)
     attachment = models.FileField(null=True, upload_to="patient_attachment", validators=[attachment_size_validator,
@@ -179,7 +180,6 @@ class HelpRequest(models.Model):
 
 
 class HelpRequestMedical(HelpRequest):
-
     symptoms = models.TextField(max_length=2048, blank=True)
     symdays = models.DateField(blank=True, null=True)
     spo2 = models.IntegerField(default=0)
@@ -320,7 +320,6 @@ class Tokens(models.Model):
         self.points += 5
         print(self.points)
         self.save()
-
 
     @property
     def two_layer_friends(self):
