@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from rest_framework import viewsets, generics, filters, permissions
+from rest_framework import viewsets, generics, filters, permissions, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.parsers import FileUploadParser
@@ -254,19 +254,55 @@ class PatientViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'post', 'head', 'options']
 
-    def get_serializer_class(self):
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs["pk"]
+        help_req = HelpRequest.objects.get(pk=pk)
+        serializer = GetHelpRequestSerializer(help_req)
+        print(help_req.request_type)
+        if help_req.request_type == "M":
+            serializer = GetMedicalRequestSerializer(HelpRequestMedical.objects.get(id=pk))
+        elif help_req.request_type == "B":
+            serializer = GetBloodRequestSerializer(HelpRequestBlood.objects.get(id=pk))
+        elif help_req.request_type == "FI":
+            serializer = GetFinancialRequestSerializer(HelpRequestBlood.objects.get(id=pk))
+
+        return Response(serializer.data)
+
+    def get_serializer_class(self, r_type_new=""):
         try:
-            r_type = self.request.GET["type"]
+            r_type = r_type_new if r_type_new else self.request.GET["type"]
             if r_type == "M":
                 return GetMedicalRequestSerializer
+            elif r_type == "FI":
+                return HelpRequestFinancial
+            elif r_type == "B":
+                return HelpRequestBlood
             else:
-                return GetHelpRequestSerializer
+                return HelpRequest
         except Exception as e:
+            print(e)
             return GetHelpRequestSerializer
 
-    def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(user=user)
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        if "r_rype" in kwargs.items():
+            serializer_class = self.get_serializer_class(kwargs["r_type"])
+        else:
+            serializer_class = self.get_serializer_class()
+
+        kwargs.setdefault('context', self.get_serializer_context())
+        return serializer_class(*args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        r_type = request.data["request_type"]
+        serializer = self.get_serializer(data=request.data, r_type=r_type)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def filter_queryset(self, queryset):
         user = self.request.user

@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from internals.serializers import GetImageSerializer, GetBuildingSerializer, DoctorSerializer, GetDepartmentSerializer
 from .models import Markers, Reviews, SuspiciousMarking, HelpRequest, Tokens, Language, Notification, \
-    BannerImage, bed, HelpRequestMedical
+    BannerImage, bed, HelpRequestMedical, HelpRequestBlood, HelpRequestFinancial
 
 bed_names = {}
 for i in bed:
@@ -93,7 +93,25 @@ class GetMedicalRequestSerializer(GetHelpRequestSerializer):
     class Meta:
         model = HelpRequestMedical
         fields = GetHelpRequestSerializer.Meta.fields + [
-            "symptoms", "symdays", "spo2", "oxy_bed"
+            "symptoms", "symdays", "spo2", "oxy_bed", "bedtype", "blood", "ct", "covidresult",
+            "ctscore", 'attendername', "attenderphone", "relation", "hospitalpref", "hospitalprefid",
+            "srfid", "bunum", "requirement"
+        ]
+
+
+class GetFinancialRequestSerializer(GetHelpRequestSerializer):
+    class Meta:
+        model = HelpRequestFinancial
+        fields = GetHelpRequestSerializer.Meta.fields + [
+            "account_holder", "account_no", "ifsc", "bank_name"
+        ]
+
+
+class GetBloodRequestSerializer(GetHelpRequestSerializer):
+    class Meta:
+        model = HelpRequestBlood
+        fields = GetHelpRequestSerializer.Meta.fields + [
+            "blood"
         ]
 
 
