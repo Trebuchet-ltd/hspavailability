@@ -113,7 +113,7 @@ class DoctorSchedule(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="doctor")
     date = models.DateField()
     def __str__(self):
-        return self.date.strftime('%d/%m/%Y') + " " +self.doctor.name
+        return self.date.strftime('%d/%m/%Y') + " " + self.doctor.name
 
 
 class AppointmentSlots(models.Model):

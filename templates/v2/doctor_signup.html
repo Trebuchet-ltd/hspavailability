@@ -6,7 +6,7 @@
     <div class="d-flex container flex-column  neumorphic_form p-4 align-items-center  col-md-6 col-lg-4">
         <h1>Register</h1>
         <form class="d-flex flex-column w-100 px-1 align-items-center flex-fill"
-              action="/signup/?{{ request.META.QUERY_STRING }}" method="POST">
+              action="/signup/doctor/?{{ request.META.QUERY_STRING }}" method="POST">
             {% csrf_token %}
             {% if pswderr %}
                 <div class=" text-danger " align='center' role="alert">
@@ -16,25 +16,45 @@
 
 
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="text" id="form1" class="form-control" placeholder="Username" name="username">
+                <input type="text" id="form1" class="form-control" required placeholder="Username" name="username">
                 <label class="form-label" for="form1">Username</label>
             </div>
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="text" id="form2" class="form-control" placeholder="First Name" name="firstname">
+                <input type="text" id="form2" class="form-control" required placeholder="First Name" name="firstname">
                 <label class="form-label" for="form2">First Name</label>
             </div>
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="text" id="form3" class="form-control" placeholder="Last Name" name="lastname">
+                <input type="text" id="form3" class="form-control" required placeholder="Last Name" name="lastname">
                 <label class="form-label" for="form3">Last Name</label>
             </div>
 
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="text" id="form4" class="form-control" placeholder="E-mail" name="email">
+                <input type="text" id="form4" class="form-control" required placeholder="E-mail" name="email">
                 <label class="form-label" for="form4">E-Mail</label>
+            </div>
+            <div class="form-outline my-2 flex-grow w-75">
+                <input type="text" id="form4" class="form-control" required placeholder="phone number"
+                       name="phone_number">
+                <label class="form-label" for="form4">Phone number</label>
             </div>
 
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="password" id="form5" class="form-control" placeholder="Password" name="password">
+                <input type="text" id="form4" class="form-control" required placeholder="ima number" name="ima_number">
+                <label class="form-label" for="form4">Ima number</label>
+            </div>
+            <div class="form-outline my-2 flex-grow w-75">
+                <input type="number" id="form4" class="form-control" required placeholder="ima number"
+                       name="experience">
+                <label class="form-label" for="form4">Experience</label>
+            </div>
+            <div class="form-outline my-2 flex-grow w-75">
+                <input type="text" id="form4" class="form-control" required placeholder="ima number"
+                       name="specialization">
+                <label class="form-label" for="form4">specialization</label>
+            </div>
+
+            <div class="form-outline my-2 flex-grow w-75">
+                <input type="password" id="form5" class="form-control" required placeholder="Password" name="password">
                 <label class="form-label" for="form5">Password</label>
             </div>
 
@@ -63,7 +83,7 @@
             </div>
 
             <p class="mt-3"><a href="/login?{{ request.META.QUERY_STRING }}">Existing User?</a>
-            <p class="mt-3"><a href="/signup/doctor/?{{ request.META.QUERY_STRING }}">Register as a Doctor?</a>
+            <p class="mt-3"><a href="/signup/?{{ request.META.QUERY_STRING }}">Register as normal user</a>
         </form>
     </div>
 {% endblock %}  
