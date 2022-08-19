@@ -12,7 +12,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from oauth2_provider.models import AccessToken, Application
-from psycopg2._psycopg import IntegrityError
 
 from home.models import Tokens
 from internals.models import Doctor
