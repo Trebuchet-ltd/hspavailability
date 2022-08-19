@@ -301,8 +301,6 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            # r_type = request.data["request_type"]
-            # print(r_type)
             serializer = self.get_serializer(data=request.data)
             print(serializer)
             serializer.is_valid(raise_exception=True)
@@ -365,16 +363,6 @@ class PatientViewSet(viewsets.ModelViewSet):
         patient.save()
         serializer = self.get_serializer(patient, many=False)
         return Response(serializer.data, status=201)
-
-    # @action(detail=True, methods=["post"], url_path='accept', permission_classes=[IsOwnerUser, ])
-    # def accept(self, request, pk):
-    #     user = request.user
-    #     patient = Patient.objects.get(pk=pk)
-    #     patient.help_requests.add(user)
-    #     patient.helped_by = user
-    #     patient.save()
-    #     serializer = self.get_serializer(patient, many=False)
-    #     return Response(serializer.data, status=201)
 
 
 class ImageViewSet(viewsets.ModelViewSet, generics.GenericAPIView):

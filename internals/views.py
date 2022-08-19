@@ -84,7 +84,6 @@ class DoctorApiViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         doctor = serializer.save()
         add_points(request.user, settings.add_doctor_point)
-
         try:
             working_times = self.request.data["working_time"]
             print(working_times)
