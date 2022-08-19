@@ -240,7 +240,6 @@ def doctor_signup(request):
 
                         logger.info('Token was invalid')
                         context1['pswderr'] = 'Invalid Token'
-
                 else:
                     context1["pswderr"] = "Doctor with same ima number already exists"
             else:
