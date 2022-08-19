@@ -220,7 +220,7 @@ def doctor_signup(request):
                         inv = request.POST.get('invite', '')
                         give_points(inv, 'invite')
                         user = User.objects.create_user(email=email, password=password, username=username,
-                                                        first_name=firstname, last_name=lastname)
+                                                        first_name=firstname, last_name=lastname,ima_number=ima_number)
 
                         tkn, _ = Tokens.objects.get_or_create(user=user, invite_token=inv)
                         tkn.add_friend(user)
