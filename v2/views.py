@@ -14,6 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from oauth2_provider.models import AccessToken, Application
 
 from home.models import Tokens
+from internals.models import Doctor
 
 logger = logging.getLogger('v2')
 
@@ -186,6 +187,72 @@ def signup(request):
     context1['FACEBOOK_CLIENT_ID'] = settings.SOCIAL_AUTH_FACEBOOK_KEY
     context1['facebook_redirect_uri'] = settings.DEPLOYMENT_URL + '/facebook-login'
     return render(request, template_name="v2/signup.html", context=context1)
+
+
+@ensure_csrf_cookie
+def doctor_signup(request):
+    context1 = {}
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        passwrd2 = request.POST.get("password retype")
+        username = request.POST.get("username", '')
+        firstname = request.POST.get("firstname", "")
+        lastname = request.POST.get("lastname", "")
+        phone_number = request.POST.get("phone_number", "")
+        ima_number = request.POST.get("ima_number", "")
+        experience = request.POST.get("experience", "")
+        specialization = request.POST.get("specialization", "")
+        if not email:
+            context1['pswderr'] = 'Email cannot be empty'
+            logger.info('Email was empty')
+        elif not password or not passwrd2:
+            context1['pswderr'] = 'Password cannot be empty'
+            logger.info('Password was empty')
+        elif not username:
+            context1['pswderr'] = 'Username cannot be empty'
+            logger.info('Username was empty')
+        else:
+            if passwrd2 == password:
+                if not Doctor.objects.filter(email_id=email).exists():
+                    try:
+                        inv = request.POST.get('invite', '')
+                        give_points(inv, 'invite')
+                        user = User.objects.create_user(email=email, password=password, username=username,
+                                                        first_name=firstname, last_name=lastname,ima_number=ima_number)
+
+                        tkn, _ = Tokens.objects.get_or_create(user=user, invite_token=inv)
+                        tkn.add_friend(user)
+                        doc = Doctor.objects.create(name=f"{firstname} {lastname}", phone_number=phone_number,
+                                                    whatsapp_number=phone_number, email_id=email, user=user,
+                                                    experience=experience, specialization=specialization)
+                        print(doc)
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        redirect_location = request.GET.get('next', '/') + '?' + request.META['QUERY_STRING']
+                        return HttpResponseRedirect(redirect_location)
+
+                    except User.DoesNotExist as e:
+                        print(e)
+                        logger.info('User already exist')
+                        context1['pswderr'] = 'User already exists'
+                    except Exception as e:
+
+                        logger.info('Token was invalid')
+                        context1['pswderr'] = 'Invalid Token'
+                else:
+                    context1["pswderr"] = "Doctor with same ima number already exists"
+            else:
+                logger.info('Password Does not match')
+                context1['pswderr'] = 'Password Does not match'
+
+    next_loc = request.GET.get('next', '')
+    context1['sign_text'] = "Register"
+    context1['invite'] = get_item_from_url(next_loc, 'invite')
+    context1['redirect_uri'] = settings.DEPLOYMENT_URL + '/google-login'
+    context1['GOOGLE_CLIENT_ID'] = settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+    context1['FACEBOOK_CLIENT_ID'] = settings.SOCIAL_AUTH_FACEBOOK_KEY
+    context1['facebook_redirect_uri'] = settings.DEPLOYMENT_URL + '/facebook-login'
+    return render(request, template_name="v2/doctor_signup.html", context=context1)
 
 
 @login_required
