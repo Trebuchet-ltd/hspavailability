@@ -50,10 +50,11 @@ class UserSerializer(serializers.ModelSerializer):
         friends = [{"name": tkn.user.username, "email": tkn.user.email,
                     "token": tkn.private_token, "profile": get_image(tkn), "invited": True} for
                    tkn in
-                   Tokens.objects.filter(invite_token=user.tokens.private_token)] + [
+                   Tokens.objects.filter(invite_token=user.tokens.private_token)] + \
+                  [
                       {"name": user.username, "email": user.email, "token": user.tokens.private_token,
                        "profile": get_image(user.tokens), "invited": False} for user in
-                      user.tokens.friends.all()]
+                      user.tokens.friends.all()] if hasattr(user, 'token') else []
         return friends
 
     @classmethod

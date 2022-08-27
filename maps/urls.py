@@ -46,6 +46,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
 
     path('api/', include('home.urls')),
+    path('doctor/', include('doctor.urls')),
     path('internals/', include('internals.urls')),
     path('', include('v2.urls')),
     path('auth/', include('authentication.urls')),

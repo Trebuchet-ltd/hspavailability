@@ -26,6 +26,8 @@ class UserApiViewSet(viewsets.ModelViewSet):
     parser_class = [FileUploadParser]
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset
         try:
             return User.objects.filter(id=self.request.user.id)
         except User.DoesNotExist:
@@ -38,6 +40,7 @@ class UserApiViewSet(viewsets.ModelViewSet):
 
         if not request.user.is_superuser:
             self.queryset = self.queryset.filter(pk=request.user.pk)
+        print(self.queryset)
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
 
     @action(detail=False, methods=["get", "post", "patch"], url_path='me')

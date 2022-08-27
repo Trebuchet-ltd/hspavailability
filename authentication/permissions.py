@@ -46,3 +46,15 @@ class IsSenderOrReceiver(permissions.BasePermission):
         return bool(
             request.user and request.user.is_authenticated) and \
                (obj.sender == request.user or obj.receiver == request.user)
+
+
+class IsDoctor(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of an object to access it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Write permissions are only allowed to the owner of the snippet.
+        return bool(request.user.tokens.is_doctor)
+
+

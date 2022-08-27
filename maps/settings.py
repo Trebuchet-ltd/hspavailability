@@ -66,7 +66,8 @@ INSTALLED_APPS = [
     'home',
     'v2',
     'internals',
-    'chats'
+    'chats',
+    'doctor'
 ]
 
 MIDDLEWARE = [

@@ -215,6 +215,7 @@ class HelpRequestBlood(HelpRequest):
     blood = models.CharField(max_length=4, blank=True, null=True)
 
 
+
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -270,6 +271,10 @@ class Tokens(models.Model):
     def two_layer_friends(self):
         return User.objects.filter(tokens__private_token=self.invite_token) \
                | User.objects.filter(tokens__invite_token=self.private_token)
+
+    @property
+    def is_doctor(self):
+        return bool(self.user.doctor)
 
 
 class Notification(models.Model):
