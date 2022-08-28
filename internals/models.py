@@ -116,10 +116,25 @@ class DoctorSchedule(models.Model):
 
 
 class AppointmentSlots(models.Model):
-    day = models.ForeignKey(DoctorSchedule, on_delete=models.SET_NULL, related_name="slots")
+    day = models.ForeignKey(DoctorSchedule, on_delete=models.SET_NULL, related_name="slots", null=True)
     start = models.TimeField()
     end = models.TimeField()
     booked_by = models.ForeignKey(User, related_name="booked_user", on_delete=models.CASCADE, null=True)
+
+
+class DoctorScheduleTemplate(models.Model):
+    days = (
+        (1, "monday"), (2, "tuesday"), (3, "Wednesday"), (4, "Thursday"), (5, "friday"), (6, "saturday"), (7, "sunday"))
+    day = models.IntegerField(default=1, choices=days)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="schedule_template")
+
+
+
+
+class DoctorScheduleTemplateSlots(models.Model):
+    day = models.ForeignKey(DoctorScheduleTemplate, on_delete=models.CASCADE, related_name="template_slots")
+    start = models.TimeField()
+    end = models.TimeField()
 
 
 class DoctorReviews(models.Model):

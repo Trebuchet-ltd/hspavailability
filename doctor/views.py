@@ -4,13 +4,13 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 
-
 # Create your views here.
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
-from doctor.serializers import PatientAppointmentSlotSerializer, DoctorScheduleSerializer
-from internals.models import AppointmentSlots, DoctorSchedule
+from doctor.serializers import PatientAppointmentSlotSerializer, DoctorScheduleSerializer, \
+    DoctorScheduleTemplateSerializer
+from internals.models import AppointmentSlots, DoctorSchedule, DoctorScheduleTemplate
 
 
 class AppointmentViewSet(viewsets.ModelViewSet):
@@ -76,3 +76,13 @@ class DoctorScheduleViewSet(viewsets.ModelViewSet):
     queryset = DoctorSchedule.objects.all()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = {'date': ['lte', 'gte'], 'doctor': ['exact']}
+
+
+class DoctorScheduleTemplateViewSet(viewsets.ModelViewSet):
+    serializer_class = DoctorScheduleTemplateSerializer
+    http_method_names = ['get', 'post', 'options', 'delete']
+    permission_classes = [IsAuthenticated]
+    queryset = DoctorScheduleTemplate.objects.all()
+
+    def get_queryset(self):
+        return DoctorScheduleTemplate.objects.filter(doctor__user=self.request.user)

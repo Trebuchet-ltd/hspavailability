@@ -8,8 +8,16 @@ class SlotInline(admin.StackedInline):
     model = AppointmentSlots
 
 
+class DoctorScheduleTemplateSlotsInline(admin.StackedInline):
+    model = DoctorScheduleTemplateSlots
+
+
 class DoctorScheduleAdmin(admin.ModelAdmin):
     inlines = [SlotInline]
+
+
+class DoctorScheduleTemplateAdmin(admin.ModelAdmin):
+    inlines = [DoctorScheduleTemplateSlotsInline]
 
 
 @admin.register(Images)
@@ -64,3 +72,4 @@ admin.site.register(Nurse, )
 admin.site.register(NurseReviews, )
 admin.site.register(DoctorReviews, )
 admin.site.register(DoctorSchedule, DoctorScheduleAdmin)
+admin.site.register(DoctorScheduleTemplate, DoctorScheduleTemplateAdmin)
