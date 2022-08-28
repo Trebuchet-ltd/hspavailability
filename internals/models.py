@@ -116,7 +116,7 @@ class DoctorSchedule(models.Model):
 
 
 class AppointmentSlots(models.Model):
-    day = models.ForeignKey(DoctorSchedule, on_delete=models.SET_NULL, related_name="slots")
+    day = models.ForeignKey(DoctorSchedule, on_delete=models.SET_NULL, blank=True, null=True, related_name="slots")
     start = models.TimeField()
     end = models.TimeField()
     booked_by = models.ForeignKey(User, related_name="booked_user", on_delete=models.CASCADE, null=True)
