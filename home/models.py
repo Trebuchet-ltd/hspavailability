@@ -215,7 +215,6 @@ class HelpRequestBlood(HelpRequest):
     blood = models.CharField(max_length=4, blank=True, null=True)
 
 
-
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -274,7 +273,7 @@ class Tokens(models.Model):
 
     @property
     def is_doctor(self):
-        return bool(self.user.doctor)
+        return bool(self.user.doctor is not None)
 
 
 class Notification(models.Model):
