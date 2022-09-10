@@ -55,6 +55,6 @@ class IsDoctor(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet.
-        return bool(request.user.tokens.is_doctor)
+        return bool(request.user.tokens.doctor)
 
 

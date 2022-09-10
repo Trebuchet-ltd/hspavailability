@@ -272,7 +272,7 @@ class Tokens(models.Model):
                | User.objects.filter(tokens__invite_token=self.private_token)
 
     @property
-    def is_doctor(self):
+    def doctor(self):
         return bool(self.user.doctor is not None)
 
 
