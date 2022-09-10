@@ -64,9 +64,9 @@
                 <label class="form-label" for="form6">Retype Password</label>
             </div>
             <div class="form-outline my-2 flex-grow w-75">
-                <input type="text" id="form6" class="form-control" placeholder="Invite Token" name="invite"
+                <input type="text" id="form6" class="form-control" placeholder="Invite Token" name="invite" hidden
                        value="{{ invite }}">
-                <label class="form-label" for="form6">Invite Token</label>
+                <label class="form-label" hidden for="form6">Invite Token</label>
             </div>
             <label>
                 <input name="next" value="{{ request.GET.next }}" hidden>

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -216,16 +217,17 @@ def doctor_signup(request):
             if passwrd2 == password:
                 if not Doctor.objects.filter(email_id=email).exists():
                     try:
-                        inv = request.POST.get('invite', '')
-                        give_points(inv, 'invite')
+                        # inv = request.POST.get('invite', '')
+                        # give_points(inv, 'invite')
                         user = User.objects.create_user(email=email, password=password, username=username,
-                                                        first_name=firstname, last_name=lastname,ima_number=ima_number)
+                                                        first_name=firstname, last_name=lastname, )
 
-                        tkn, _ = Tokens.objects.get_or_create(user=user, invite_token=inv)
+                        tkn, _ = Tokens.objects.get_or_create(user=user, )
                         tkn.add_friend(user)
                         doc = Doctor.objects.create(name=f"{firstname} {lastname}", phone_number=phone_number,
                                                     whatsapp_number=phone_number, email_id=email, user=user,
-                                                    experience=experience, specialization=specialization)
+                                                    experience=experience, specialization=specialization,
+                                                    ima_number=ima_number)
                         print(doc)
                         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                         redirect_location = request.GET.get('next', '/') + '?' + request.META['QUERY_STRING']
@@ -235,7 +237,11 @@ def doctor_signup(request):
                         print(e)
                         logger.info('User already exist')
                         context1['pswderr'] = 'User already exists'
+                    except IntegrityError as er:
+                        logger.info('Username already exists')
+                        context1['pswderr'] = 'Username already exists'
                     except Exception as e:
+                        print(e)
 
                         logger.info('Token was invalid')
                         context1['pswderr'] = 'Invalid Token'
